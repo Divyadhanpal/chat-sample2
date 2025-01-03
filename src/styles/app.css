@@ -1,0 +1,141 @@
+/* Base styles */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Font faces */
+@font-face {
+  font-family: 'Inter';
+  src: url('/fonts/Inter-Regular.woff2') format('woff2'),
+       url('/fonts/Inter-Regular.woff') format('woff');
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Inter';
+  src: url('/fonts/Inter-Medium.woff2') format('woff2'),
+       url('/fonts/Inter-Medium.woff') format('woff');
+  font-weight: 500;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Inter';
+  src: url('/fonts/Inter-SemiBold.woff2') format('woff2'),
+       url('/fonts/Inter-SemiBold.woff') format('woff');
+  font-weight: 600;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Inter';
+  src: url('/fonts/Inter-Bold.woff2') format('woff2'),
+       url('/fonts/Inter-Bold.woff') format('woff');
+  font-weight: 700;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Poppins';
+  src: url('/fonts/Poppins-Light.woff2') format('woff2'),
+       url('/fonts/Poppins-Light.woff') format('woff');
+  font-weight: 300;
+  font-style: normal;
+}
+
+/* Custom utility classes */
+@layer components {
+  .is-scrollbar-hidden {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  .is-scrollbar-hidden::-webkit-scrollbar {
+    display: none;
+  }
+
+  .avatar {
+    @apply relative inline-flex size-10;
+  }
+
+  .avatar .is-initial {
+    @apply flex size-full items-center justify-center font-medium text-white;
+  }
+
+  .btn {
+    @apply inline-flex items-center justify-center transition-colors duration-150 ease-in-out;
+  }
+
+  .form-input {
+    @apply block w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 placeholder:text-slate-400/70 hover:border-slate-400 focus:border-primary dark:border-navy-450 dark:hover:border-navy-400 dark:focus:border-accent;
+  }
+}
+
+/* Dark mode styles */
+.dark {
+  color-scheme: dark;
+}
+
+/* Chat specific styles */
+.chat-container {
+  @apply flex flex-col h-full bg-slate-50 dark:bg-navy-900;
+}
+
+.message-container {
+  @apply flex-1 overflow-y-auto p-4 space-y-4;
+}
+
+.user-message {
+  @apply flex items-end justify-end gap-2.5 ml-4 sm:ml-10;
+}
+
+.bot-message {
+  @apply flex items-end justify-start gap-2.5 mr-4 sm:mr-10;
+}
+
+.message-bubble {
+  @apply relative break-words print:border max-w-lg rounded-2xl p-3;
+}
+
+.user-bubble {
+  @apply bg-slate-150 dark:bg-navy-700 rounded-br;
+}
+
+.bot-bubble {
+  @apply border border-slate-200 dark:border-navy-600 rounded-bl;
+}
+
+/* Input area styles */
+.input-container {
+  @apply mx-auto w-full max-w-screen-lg xl:px-16 px-3 sm:px-4 pb-4;
+}
+
+.input-form {
+  @apply flex h-14 items-center justify-between rounded-full bg-slate-150 px-4 sm:px-6 dark:bg-navy-700;
+}
+
+/* Button styles */
+.action-button {
+  @apply btn size-8 rounded-full p-0 hover:bg-slate-300/20 focus:bg-slate-300/20 active:bg-slate-300/25;
+}
+
+/* Animation for typing indicator */
+@keyframes typing {
+  0% { transform: translateY(0px); }
+  28% { transform: translateY(-7px); }
+  44% { transform: translateY(0px); }
+}
+
+.typing-animation div {
+  @apply size-2 rounded-full bg-slate-300 dark:bg-navy-400;
+  animation: typing 1.4s infinite;
+}
+
+.typing-animation div:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.typing-animation div:nth-child(3) {
+  animation-delay: 0.4s;
+} 

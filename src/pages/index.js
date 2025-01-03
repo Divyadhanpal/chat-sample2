@@ -1,119 +1,130 @@
 import { useState, useEffect } from "react";
-import { Inter } from 'next/font/google'
-import PreviousChats from '../components/PreviousChats';
-import Chat from "@/components/Chat";
-import Sidebar from "@/components/Sidebar";
-import MobileSidebar from "@/components/MobileSidebar";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchChats } from "../redux/slices/chatSlice";
+import Chat from "../components/Chat";
+import Sidebar from "../components/Sidebar";
+import FlowComponent from "../components/FlowComponent";
 import axios from "axios";
-import FlowWrapper from "@/components/FlowComponent";
+import { ReactFlowProvider } from 'react-flow-renderer';
+import { AiOutlineMenu, AiOutlinePlus } from "react-icons/ai";
 
 export default function Home() {
-
+  const dispatch = useDispatch();
   const [isComponentVisible, setIsComponentVisible] = useState(false);
   const [isChatWindowVisible, setIsChatWindowVisible] = useState(false);
-  const [chatId, setchatId] = useState(null);
-  const [debounceTimeout, setDebounceTimeout] = useState(null);
-  const [output, setOutput] = useState('');
-  const [prevChats, setPrevChats] = useState([]);
-  const [navChatId,setNavChatId] = useState(null);
+  const [chatId, setChatId] = useState(null);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [isGraphVisible, setIsGraphVisible] = useState(true);
 
+  const prevChats = useSelector((state) => state.chat.chats);
 
   useEffect(() => {
-    if (prevChats.length == 0) {
-      const apiUrl = 'http://localhost:8000/api/v1/chats';
-      callApi(apiUrl);
+    if (prevChats.length === 0) {
+      dispatch(fetchChats());
     }
-  }, []);
+  }, [prevChats, dispatch]);
 
-  const callApi = async (url) => {
+  const getChatIDFromApi = async () => {
+    const url = `http://localhost:8000/api/v1/chats`;
     try {
-      const response = await fetch(url, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        }
-      });
-      const result = await response.json();
-      console.log(result.map(item => item.id), "result from callapi get")
-      // Assuming the ID is in result.id
-      if (result) {
-        setPrevChats(result.map(item => item.id)); // Save the ID
+      const response = await axios.post(url);
+      if (response.data.id) {
+        setChatId(response.data.id);
+        setIsChatWindowVisible(true);
       }
     } catch (error) {
-      setOutput('Error fetching data: ' + error.message);
+      console.error('Error fetching data:', error.message);
     }
-  };
-
-
-  const getChatIDFromApi = () => {
-    alert("inside api")
-    const url = `http://localhost:8000/api/v1/chats`;
-
-    axios.post(url).then((response) => {
-      // const result =  response.json();
-      console.log(response.data.id, "result from callapi index")
-      // setOutput(JSON.stringify(result, null, 2));
-
-      // Assuming the ID is in result.id
-      if (response.data.id) {
-        setchatId(response.data.id); // Save the ID
-      }
-    }).catch((error) => {
-      setOutput('Error fetching data: ' + error.message);
-      console.log(error, "from index error ");
-    })
-  }
-
-
-  const toggleComponentVisibility = () => {
-    setIsComponentVisible(!isComponentVisible);
   };
 
   const toggleChatWindow = () => {
-      setIsChatWindowVisible(true);
-      getChatIDFromApi();  
+    getChatIDFromApi();
   };
 
-  const getIdFromNav =(id) => {
-    setchatId(id)
+  const getIdFromNav = (id) => {
+    setChatId(id);
     setIsChatWindowVisible(true);
-  }
+  };
 
-
+  const toggleSidebar = () => {
+    setIsSidebarCollapsed(!isSidebarCollapsed);
+  };
 
   return (
+    <ReactFlowProvider>
+      <div className="flex h-screen bg-gray-50">
+        {/* Sidebar */}
+        <div
+          className={`flex flex-col border-r border-gray-200 bg-white transition-all duration-300 ease-in-out
+            ${isSidebarCollapsed ? 'w-16' : 'w-80'}`}
+        >
+          <div className="flex items-center p-4 border-b border-gray-200">
+            <button 
+              onClick={toggleSidebar}
+              className="p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200"
+              aria-label={isSidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+            >
+              <AiOutlineMenu className="h-5 w-5 text-gray-600" />
+            </button>
+          </div>
+          
+          <Sidebar
+            onToggle={toggleChatWindow}
+            prevChats={prevChats}
+            getIdFromNav={getIdFromNav}
+            isCollapsed={isSidebarCollapsed}
+          />
+        </div>
 
-    // <div className="overflow-hidden w-full h-screen relative flex">
-    //   {isComponentVisible ? (
-    //     <MobileSidebar toggleComponentVisibility={toggleComponentVisibility} />
-    //   ) : null}
-    //   <div className="dark hidden flex-shrink-0 bg-gray-900 md:flex md:w-[260px] md:flex-col">
-    //     <div className="flex h-full min-h-0 flex-col ">
-    //       <Sidebar isChatWindowVisible={isChatWindowVisible} onToggle={toggleChatWindow} prevChats={prevChats} getIdFromNav={getIdFromNav}/>
-    //     </div>
-    //   </div>
+        <div className={`flex flex-col border-r border-gray-200 bg-white ${
+          isGraphVisible ? 'w-1/2' : 'flex-1'
+        }`}>
+          <div className="p-4 border-b border-gray-200 flex gap-2">
+            <button 
+              onClick={toggleChatWindow} 
+              className="flex items-center justify-center gap-2 flex-1 px-4 py-2 text-sm font-medium text-white 
+                       bg-blue-500 rounded-lg hover:bg-blue-600 transition-colors duration-200 shadow-sm"
+            >
+              <AiOutlinePlus className="h-4 w-4" />
+              New Chat
+            </button>
+            <button 
+              onClick={() => setIsGraphVisible(!isGraphVisible)}
+              className="flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-700
+                       bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors duration-200 shadow-sm"
+            >
+              {isGraphVisible ? 'Hide Graph' : 'Show Graph'}
+            </button>
+          </div>
 
-    //   {isChatWindowVisible ? <Chat chatId={chatId} toggleComponentVisibility={toggleComponentVisibility} /> : <div style={{ color: '#fff' }}>
-    //     You can start your chat by clicking NEW CHAT Button
-    //   </div>}
+          <div className="flex-grow overflow-auto">
+            {isChatWindowVisible ? (
+              <Chat chatId={chatId} />
+            ) : (
+              <div className="flex flex-col items-center justify-center h-full p-6 text-center">
+                <div className="rounded-full bg-blue-100 p-3 mb-4">
+                  <AiOutlinePlus className="h-6 w-6 text-blue-500" />
+                </div>
+                <h3 className="text-lg font-medium text-gray-900 mb-2">
+                  Start a New Chat
+                </h3>
+                <p className="text-sm text-gray-500">
+                  Click the <span className="font-medium text-blue-500">New Chat</span> button above to begin
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
 
-      
-
-    // </div>
-    <div className="flex h-screen">
-      <div className="w-1/3 flex   border border-gray-300 shadow ">
-      <div className="w-1/3 p-4 border-r-2 border-gray-300 shadow >"><Sidebar isChatWindowVisible={isChatWindowVisible} onToggle={toggleChatWindow} prevChats={prevChats} getIdFromNav={getIdFromNav}/></div>
-      <div className="w-1/2 p-4">
-      {isChatWindowVisible ? <Chat chatId={chatId} toggleComponentVisibility={toggleComponentVisibility} /> : <div style={{ color: '#fff' }}>
-      You can start your chat by clicking NEW CHAT Button
-    </div>}
-    </div>
+        {/* Modified Flow Component section */}
+        {isGraphVisible && (
+          <div className="w-1/2 bg-white">
+            <div className="h-full p-4 bg-gray-50">
+              <FlowComponent />
+            </div>
+          </div>
+        )}
       </div>
-      <div className=" w-2/3 p-4 flex ">
-
-    <FlowWrapper/>
-    </div>
-
-  </div>
-  )
+    </ReactFlowProvider>
+  );
 }

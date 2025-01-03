@@ -1,98 +1,207 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import ReactFlow, {
-  addEdge,
-  MiniMap,
   Controls,
+  MiniMap,
   Background,
-  BackgroundVariant,
   useNodesState,
   useEdgesState,
-} from 'react-flow-renderer';
-import 'react-flow-renderer/dist/style.css';
+  MarkerType,
+  addEdge,
+} from 'reactflow';
+import 'reactflow/dist/style.css';
+import { useDispatch, useSelector } from 'react-redux';
+import {
+  addNode,
+  deleteNode,
+  updateNode,
+  addFlowEdge,
+  deleteEdge,
+  updateEdge,
+  resetFlow,
+} from '../redux/slices/flowSlice';
+import CustomNode from './CustomNode';
+import FloatingEdge from './FloatingEdge';
+import CustomConnectionLine from './CustomConnectionLine';
 
-const initialNodes = [
-    { id: '1', position: { x: 0, y: 0 }, data: { label: '1' } },
-    { id: '2', position: { x: 0, y: 100 }, data: { label: '2' } },
-  ];
-  const initialEdges = [{ id: 'e1-2', source: '1', target: '2' }];
+const nodeTypes = {
+  customNode: CustomNode,
+};
+
+const edgeTypes = {
+  floating: FloatingEdge,
+};
+
+const defaultEdgeOptions = {
+  type: 'floating',
+  markerEnd: {
+    type: MarkerType.ArrowClosed,
+    color: '#b1b1b7',
+  },
+};
 
 const FlowComponent = () => {
-  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
-  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+  const dispatch = useDispatch();
+  const nodes = useSelector((state) => state.flow.nodes);
+  const edges = useSelector((state) => state.flow.edges);
+  const [reactFlowNodes, setNodes, onNodesChange] = useNodesState(nodes);
+  const [reactFlowEdges, setEdges, onEdgesChange] = useEdgesState(edges);
+  const [selectedNodeId, setSelectedNodeId] = useState(null);
+  const [edgeClickTimeout, setEdgeClickTimeout] = useState(null);
+
+  // Sync local state with Redux state when nodes or edges change
+  useEffect(() => {
+    console.log('Current nodes:', nodes,edges);
+    setNodes(nodes);
+    setEdges(edges);
+    setSelectedNodeId(null); // Clear selection when nodes reset
+  }, [nodes, edges, setNodes, setEdges]);
 
   const onAddNode = useCallback(() => {
     const newNode = {
-      id: `${nodes.length + 1}`,
-      type: 'default',
+      id: `${Date.now()}`,
+      type: 'customNode',
       position: { x: Math.random() * 400, y: Math.random() * 400 },
-      data: { label: `Node ${nodes.length + 1}` },
+      data: { label: `Node ${reactFlowNodes.length + 1}` },
+      connectable: true,
+      draggable: true,
     };
-    setNodes((nds) => nds.concat(newNode));
-  }, [nodes, setNodes]);
+    dispatch(addNode(newNode));
+  }, [reactFlowNodes, dispatch]);
 
-  const onDeleteNode = useCallback((nodeId) => {
-    setNodes((nds) => nds.filter((node) => node.id !== nodeId));
-    setEdges((eds) => eds.filter((edge) => edge.source !== nodeId && edge.target !== nodeId));
-  }, [setNodes, setEdges]);
-
-  const onUpdateNode = useCallback((nodeId) => {
-    const newLabel = prompt('Enter new label for the node:');
-    if (newLabel) {
-      setNodes((nds) =>
-        nds.map((node) =>
-          node.id === nodeId ? { ...node, data: { ...node.data, label: newLabel } } : node
-        )
-      );
+  const onDeleteNode = useCallback(() => {
+    if (selectedNodeId) {
+      dispatch(deleteNode(selectedNodeId));
+      setSelectedNodeId(null); // Clear selection after deletion
     }
-  }, [setNodes]);
+  }, [dispatch, selectedNodeId]);
 
-  const onConnect = useCallback(
-    (connection) => setEdges((eds) => addEdge(connection, eds)),
-    [setEdges],
-  );
+  const onUpdateNode = useCallback(() => {
+    if (selectedNodeId) {
+      const newLabel = prompt('Enter new label for the node:');
+      if (newLabel) {
+        dispatch(updateNode({ id: selectedNodeId, label: newLabel }));
+      }
+    }
+  }, [dispatch, selectedNodeId]);
+
+  const onNodeClick = useCallback((event, node) => {
+    setSelectedNodeId(node.id);
+  }, []);
+
+  const onConnect = useCallback((params) => {
+    console.log('onConnect called with:', params);
+    if (!params || !params.source || !params.target) {
+      console.log('Invalid connection params');
+      return;
+    }
+
+    // Create a new edge object
+    const newEdge = {
+      ...params,
+      id: `edge-${Date.now()}`,
+      type: 'floating',
+      markerEnd: defaultEdgeOptions.markerEnd
+    };
+
+    // Dispatch to Redux
+    dispatch(addFlowEdge(newEdge));
+    
+    // Update local state
+    setEdges((eds) => addEdge(params, eds));
+  }, [dispatch, setEdges]);
 
   const onDeleteEdge = useCallback((edgeId) => {
-    setEdges((eds) => eds.filter((edge) => edge.id !== edgeId));
-  }, [setEdges]);
+    dispatch(deleteEdge(edgeId));
+  }, [dispatch]);
 
   const onUpdateEdge = useCallback((edgeId) => {
     const newLabel = prompt('Enter new label for the edge:');
     if (newLabel) {
+      dispatch(updateEdge({ id: edgeId, label: newLabel }));
       setEdges((eds) =>
-        eds.map((edge) =>
-          edge.id === edgeId ? { ...edge, label: newLabel } : edge
-        )
+        eds.map((edge) => (edge.id === edgeId ? { ...edge, label: newLabel } : edge))
       );
     }
-  }, [setEdges]);
+  }, [dispatch, setEdges]);
+
+  const onEdgeClick = useCallback((event, edge) => {
+    clearTimeout(edgeClickTimeout);
+    const timeout = setTimeout(() => {
+      onUpdateEdge(edge.id);
+    }, 300);
+    setEdgeClickTimeout(timeout);
+  }, [edgeClickTimeout, onUpdateEdge]);
+
+  const onEdgeDoubleClick = useCallback((event, edge) => {
+    clearTimeout(edgeClickTimeout);
+    onDeleteEdge(edge.id);
+  }, [edgeClickTimeout, onDeleteEdge]);
+
+  const onResetFlow = useCallback(() => {
+    dispatch(resetFlow());
+    setSelectedNodeId(null);
+  }, [dispatch]);
+
+  const addTestEdge = () => {
+    const newEdge = {
+      id: `edge-${reactFlowEdges.length + 1}`,
+      source: '675003d14df99f2e539375bf', // Change as needed
+      target: '675003d14df99f2e539375c0', // Change as needed
+      type: 'floating',
+    };
+    
+    // Manually add the edge
+    setEdges((eds) => addEdge(newEdge, eds));
+    console.log('Added edge:', newEdge);
+  };
 
   return (
-    <div style={{ height: '100vh', width: '100%' }}>
-      <button onClick={onAddNode}>Add Node</button>
-      <ReactFlow
-        nodes={nodes}
-        edges={edges}
-        onNodesChange={onNodesChange}
-        onEdgesChange={onEdgesChange}
-        onConnect={onConnect}
-        onEdgeDoubleClick={(event, edge) => onDeleteEdge(edge.id)}
-        onEdgeClick={(event, edge) => onUpdateEdge(edge.id)} // Click to update edge label
-      >
-        {/* <MiniMap />
-        <Controls /> */}
-       <Background color="#ccc" variant={BackgroundVariant.Dots} />
-      </ReactFlow>
-      <div style={{ marginTop: '10px' }}>
-        {nodes.map((node) => (
-          <div key={node.id} style={{ marginBottom: '5px' }}>
-            <span>{node.data.label}</span>
-            <button onClick={() => onUpdateNode(node.id)} style={{ marginLeft: '5px' }}>Update</button>
-            <button onClick={() => onDeleteNode(node.id)} style={{ marginLeft: '5px' }}>Delete</button>
-          </div>
-        ))}
+    <div className="h-screen w-full p-4">
+      <div className="mb-4 flex items-center space-x-2">
+        <button onClick={onAddNode} className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors duration-300">
+          Add Node
+        </button>
+        <button onClick={onUpdateNode} className={`px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600 transition-colors duration-300 ${!selectedNodeId ? 'opacity-50 cursor-not-allowed' : ''}`} disabled={!selectedNodeId}>
+          Update
+        </button>
+        <button onClick={onDeleteNode} className={`px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition-colors duration-300 ${!selectedNodeId ? 'opacity-50 cursor-not-allowed' : ''}`} disabled={!selectedNodeId}>
+          Delete
+        </button>
+        <button onClick={onResetFlow} className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 transition-colors duration-300">
+          Reset
+        </button>
+      </div>
+      <div style={{ height: '80vh' }}>
+        <ReactFlow
+          nodes={reactFlowNodes}
+          edges={reactFlowEdges}
+          fitView
+          nodeTypes={nodeTypes}
+          edgeTypes={edgeTypes}
+          connectionMode="loose"
+          snapToGrid={true}
+          snapGrid={[15, 15]}
+          connectionLineStyle={{
+            stroke: '#b1b1b7',
+            strokeWidth: 2,
+          }}
+          onNodesChange={onNodesChange}
+          onEdgesChange={onEdgesChange}
+          onConnect={onConnect}
+          onNodeClick={onNodeClick}
+          onEdgeClick={onEdgeClick}
+          onEdgeDoubleClick={onEdgeDoubleClick}
+          deleteKeyCode="Delete"
+          selectionKeyCode="Shift"
+          multiSelectionKeyCode="Control"
+        >
+          <Background color="#ccc" variant="dots" />
+          <MiniMap pannable zoomable />
+          <Controls />
+        </ReactFlow>
       </div>
     </div>
   );
-};
+}
 
 export default FlowComponent;

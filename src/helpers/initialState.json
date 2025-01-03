@@ -1,0 +1,132 @@
+{
+  "nodes": [
+    {
+      "id": "675003d14df99f2e539375bf",
+      "type": "customNode",
+      "data": {
+        "label": "Learning to Play the Guitar"
+      },
+      "position": {
+        "x": -200,
+        "y": 0
+      }
+    },
+    {
+      "id": "675003d14df99f2e539375c0",
+      "type": "customNode",
+      "data": {
+        "label": "Basic Music Theory"
+      },
+      "position": {
+        "x": -44.44444444444445,
+        "y": 0
+      }
+    },
+    {
+      "id": "675003d14df99f2e539375c1",
+      "type": "customNode",
+      "data": {
+        "label": "Practice Routine"
+      },
+      "position": {
+        "x": -44.44444444444445,
+        "y": -155.55555555555557
+      }
+    },
+    {
+      "id": "675003d14df99f2e539375c4",
+      "type": "customNode",
+      "data": {
+        "label": "Online Tutorials"
+      },
+      "position": {
+        "x": -44.44444444444445,
+        "y": 155.55555555555557
+      }
+    },
+    {
+      "id": "675003d14df99f2e539375c5",
+      "type": "customNode",
+      "data": {
+        "label": "Music Theory Books"
+      },
+      "position": {
+        "x": 111.11111111111114,
+        "y": 0
+      }
+    },
+    {
+      "id": "675003d14df99f2e539375c2",
+      "type": "customNode",
+      "data": {
+        "label": "Chord Practice"
+      },
+      "position": {
+        "x": 111.11111111111114,
+        "y": 155.55555555555557
+      }
+    },
+    {
+      "id": "675003d14df99f2e539375c3",
+      "type": "customNode",
+      "data": {
+        "label": "Scale Practice"
+      },
+      "position": {
+        "x": 111.11111111111114,
+        "y": -155.55555555555557
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "675003d14df99f2e539375c6",
+      "label": "Edge 1",
+      "source": "675003d14df99f2e539375bf",
+      "target": "675003d14df99f2e539375c0",
+      "type": "floating"  
+    },
+    {
+      "id": "675003d14df99f2e539375c7",
+      "label": "Edge 2",
+      "source": "675003d14df99f2e539375bf",
+      "target": "675003d14df99f2e539375c1",
+      "type": "floating"  
+    },
+    {
+      "id": "675003d14df99f2e539375ca",
+      "label": "Edge 3",
+      "source": "675003d14df99f2e539375bf",
+      "target": "675003d14df99f2e539375c4",
+      "type": "floating"  
+    },
+    {
+      "id": "675003d14df99f2e539375cb",
+      "label": "Edge 4",
+      "source": "675003d14df99f2e539375bf",
+      "target": "675003d14df99f2e539375c5",
+      "type": "floating"  
+    },
+    {
+      "id": "6750066b4df99f2e53937626",
+      "label": "Edge 5",
+      "source": "675003d14df99f2e539375c0",
+      "target": "675003d14df99f2e539375c5",
+      "type": "floating"  
+    },
+    {
+      "id": "675003d14df99f2e539375c8",
+      "label": "Edge 6",
+      "source": "675003d14df99f2e539375c1",
+      "target": "675003d14df99f2e539375c2",
+      "type": "floating" 
+    },
+    {
+      "id": "675003d14df99f2e539375c9",
+      "label": "Edge 7",
+      "source": "675003d14df99f2e539375c1",
+      "target": "675003d14df99f2e539375c3",
+      "type": "floating"  
+    }
+  ]
+}
