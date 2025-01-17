@@ -1,55 +1,125 @@
-/** @type {import('tailwindcss').Config} */
+const colors = require("tailwindcss/colors");
+const defaultTheme = require("tailwindcss/defaultTheme");
+
+const navyColor = {
+  50: "#E7E9EF",
+  100: "#C2C9D6",
+  200: "#A3ADC2",
+  300: "#697A9B",
+  400: "#5C6B8A",
+  450: "#465675",
+  500: "#384766",
+  600: "#313E59",
+  700: "#26334D",
+  750: "#222E45",
+  800: "#202B40",
+  900: "#192132",
+};
+
+const customColors = {
+  navy: navyColor,
+  "slate-150": "#E9EEF5",
+  primary: colors.indigo["600"],
+  "primary-focus": colors.indigo["700"],
+  "secondary-light": "#ff57d8",
+  secondary: "#F000B9",
+  "secondary-focus": "#BD0090",
+  "accent-light": colors.indigo["400"],
+  accent: "#5f5af6",
+  "accent-focus": "#4d47f5",
+  info: colors.sky["500"],
+  "info-focus": colors.sky["600"],
+  success: colors.emerald["500"],
+  "success-focus": colors.emerald["600"],
+  warning: "#ff9800",
+  "warning-focus": "#e68200",
+  error: "#ff5724",
+  "error-focus": "#f03000",
+};
+
 module.exports = {
   content: [
-    "./src/**/*.{js,ts,jsx,tsx}",
+    "./src/**/*.{js,jsx,ts,tsx}",
+    "./src/styles/**/*.css",
+    "./src/**/*.{php,html,js,jsx,ts,tsx,vue}",
+    "./resources/**/*.{php,html,js,jsx,ts,tsx,vue}",
+    "./storage/framework/views/*.php",
   ],
   darkMode: 'class',
   theme: {
     extend: {
       fontFamily: {
-        'sans': ['Inter', 'sans-serif'],
-        'inter': ['Inter', 'sans-serif'],
-        poppins: ['Poppins', 'sans-serif'],
+        sans: ["Poppins", ...defaultTheme.fontFamily.sans],
+        inter: ["Inter", ...defaultTheme.fontFamily.sans],
       },
-      colors: {
-        primary: {
-          DEFAULT: '#0EA5E9',
-          50: '#F0F9FF',
-          // ... add other shades as needed
+      fontSize: {
+        tiny: ["0.625rem", "0.8125rem"],
+        "tiny+": ["0.6875rem", "0.875rem"],
+        "xs+": ["0.8125rem", "1.125rem"],
+        "sm+": ["0.9375rem", "1.375rem"],
+      },
+      colors: { ...customColors },
+      opacity: {
+        15: ".15",
+      },
+      spacing: {
+        4.5: "1.125rem",
+        5.5: "1.375rem",
+        18: "4.5rem",
+      },
+      boxShadow: {
+        soft: "0 3px 10px 0 rgb(48 46 56 / 6%)",
+        "soft-dark": "0 3px 10px 0 rgb(25 33 50 / 30%)",
+      },
+      zIndex: {
+        1: "1",
+        2: "2",
+        3: "3",
+        4: "4",
+        5: "5",
+      },
+      keyframes: {
+        "fade-in": {
+          "0%": {
+            opacity: 0,
+          },
+          "100%": {
+            opacity: 1,
+          },
         },
-        accent: {
-          DEFAULT: '#5C6AC4',
-          light: '#7C85D5',
-          dark: '#4B5AB2',
+        "fade-out": {
+          "0%": {
+            opacity: 1,
+            visibility: "visible",
+          },
+          "100%": {
+            opacity: 0,
+            visibility: "hidden",
+          },
         },
-        slate: {
-          50: '#f8fafc',
-          100: '#f1f5f9',
-          150: '#eaeff4',
-          200: '#e2e8f0',
-          300: '#cbd5e1',
-          400: '#94a3b8',
-          500: '#64748b',
-          600: '#475569',
-          700: '#334155',
-          800: '#1e293b',
-          900: '#0f172a',
-        },
-        navy: {
-          50: '#E7E9EF',
-          100: '#C2C9D6',
-          200: '#A3ADC2',
-          300: '#697A9B',
-          400: '#5C6B8A',
-          450: '#465675',
-          500: '#384766',
-          600: '#313E59',
-          700: '#26334D',
-          800: '#1D2841',
-          900: '#0F172A',
-        },
+        shimmer: {
+          from: {
+            backgroundPosition: "0 0"
+          },
+          to: {
+            backgroundPosition: "-200% 0"
+          }
+        }
+      },
+      animation: {
+        shimmer: "shimmer 2s linear infinite"
       },
     },
   },
-  plugins: [],
+  corePlugins: {
+    textOpacity: false,
+    backgroundOpacity: false,
+    borderOpacity: false,
+    divideOpacity: false,
+    placeholderOpacity: false,
+    ringOpacity: false,
+  },
+  plugins: [
+    
+  ],
 };

@@ -318,3 +318,29 @@
     }
   }
   
+  /* Button styles */
+  .btn {
+    @apply inline-flex cursor-pointer items-center justify-center rounded-lg px-5 py-2 
+           text-center tracking-wide outline-none transition-all duration-200 
+           focus:outline-none disabled:pointer-events-none;
+  }
+  
+  /* Icon button variant */
+  .btn-icon {
+    @apply inline-flex cursor-pointer items-center justify-center rounded-full p-0
+           text-center outline-none transition-all duration-200 
+           focus:outline-none disabled:pointer-events-none;
+  }
+  
+  .avatar {
+    @apply relative inline-flex size-10 shrink-0;
+  }
+  
+  .avatar > img {
+    @apply h-full w-full object-cover object-center;
+  }
+  
+  .avatar > .is-initial {
+    @apply flex h-full w-full items-center justify-center font-medium;
+  }
+  
